@@ -1,0 +1,36 @@
+{
+  "name": "cantiere",
+  "version": "0.0.0",
+  "author": "zanuka",
+  "private": true,
+  "description": "The shipyard where your agent crews work: a local-first, CLI-first orchestrator for coding agents",
+  "license": "MIT",
+  "type": "module",
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "cantiere": "tsx packages/cli/src/bin.ts",
+    "clean": "rm -rf packages/*/dist *.tsbuildinfo packages/*/*.tsbuildinfo"
+  },
+  "engines": {
+    "node": ">=22",
+    "pnpm": ">=9"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.0.0",
+    "@types/node": "^22.13.10",
+    "tsx": "^4.19.0",
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.9"
+  }
+}

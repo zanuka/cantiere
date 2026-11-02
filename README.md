@@ -59,6 +59,16 @@ cantiere land <task>                # bring finished work back through its gate
 cantiere cleanup <task>             # remove a finished worktree, never unlanded work
 ```
 
+## Development
+
+Requires Node 22 LTS and pnpm 9+. See [CONTRIBUTING.md](CONTRIBUTING.md) and [AGENTS.md](AGENTS.md).
+
+```bash
+pnpm install
+pnpm typecheck && pnpm lint && pnpm test
+pnpm cantiere --help
+```
+
 ## The Family
 
 Cantiere is one part of a set of local-first tools for AI-first engineering:

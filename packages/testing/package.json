@@ -1,0 +1,28 @@
+{
+  "name": "@cantiere/testing",
+  "version": "0.0.0",
+  "description": "Fake agent and fixtures for testing Cantiere.",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b --pretty false"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@cantiere/core": "workspace:*"
+  }
+}
