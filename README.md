@@ -101,11 +101,11 @@ Each project keeps its own boundary. Maglio is not a multi-agent runtime and Str
 
 ## Status
 
-Cantiere is at the very beginning: this README is the first commit. We are building in the open, starting with the Squad stage.
+Cantiere is at the very beginning: the workspace skeleton and a `cantiere` CLI whose commands are planned stubs are in place. We are building in the open, starting with the Squad stage.
 
 ## Contributing
 
-Ideas, design feedback, and issues are welcome. Once the CLI skeleton lands, small focused PRs on harness adapters, supervision, and docs will be the most useful contributions.
+Ideas, design feedback, and issues are welcome. Small focused PRs on harness adapters, supervision, and docs are the most useful contributions; see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
