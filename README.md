@@ -59,6 +59,16 @@ cantiere land <task>                # bring finished work back through its gate
 cantiere cleanup <task>             # remove a finished worktree, never unlanded work
 ```
 
+## Development
+
+Requires Node 22 LTS and pnpm 9+. See [CONTRIBUTING.md](CONTRIBUTING.md) and [AGENTS.md](AGENTS.md).
+
+```bash
+pnpm install
+pnpm typecheck && pnpm lint && pnpm test
+pnpm cantiere --help
+```
+
 ## The Family
 
 Cantiere is one part of a set of local-first tools for AI-first engineering:
@@ -91,11 +101,11 @@ Each project keeps its own boundary. Maglio is not a multi-agent runtime and Str
 
 ## Status
 
-Cantiere is at the very beginning: this README is the first commit. We are building in the open, starting with the Squad stage.
+Cantiere is at the very beginning: the workspace skeleton and a `cantiere` CLI whose commands are planned stubs are in place. We are building in the open, starting with the Squad stage.
 
 ## Contributing
 
-Ideas, design feedback, and issues are welcome. Once the CLI skeleton lands, small focused PRs on harness adapters, supervision, and docs will be the most useful contributions.
+Ideas, design feedback, and issues are welcome. Small focused PRs on harness adapters, supervision, and docs are the most useful contributions; see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 

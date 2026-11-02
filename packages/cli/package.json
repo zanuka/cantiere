@@ -1,0 +1,35 @@
+{
+  "name": "@cantiere/cli",
+  "version": "0.0.0",
+  "description": "The cantiere binary",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b --pretty false"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "bin": {
+    "cantiere": "./dist/bin.js"
+  },
+  "dependencies": {
+    "@cantiere/core": "workspace:*",
+    "@cantiere/adapters": "workspace:*"
+  },
+  "devDependencies": {
+    "@cantiere/testing": "workspace:*"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "name": "@cantiere/core",
+  "version": "0.0.0",
+  "description": "Task model, durable store and git worktree handling. No CLI dependencies.",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b --pretty false"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "zod": "^4.6.5"
+  }
+}
