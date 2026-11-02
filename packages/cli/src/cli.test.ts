@@ -30,6 +30,17 @@ describe("cantiere cli", () => {
     expect(capture([]).out).toContain("Usage: cantiere");
   });
 
+  it("-h prints help and -v prints the version", () => {
+    expect(capture(["-h"]).out).toContain("Usage: cantiere");
+    expect(capture(["-v"]).out.trim()).toBe(version());
+  });
+
+  it("a bare help subcommand is not an alias for --help", () => {
+    const { code, err } = capture(["help"]);
+    expect(code).toBe(2);
+    expect(err).toContain("Unknown command: help");
+  });
+
   it("--version prints the package version", () => {
     const { code, out } = capture(["--version"]);
     expect(code).toBe(0);

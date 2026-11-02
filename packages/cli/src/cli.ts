@@ -37,7 +37,7 @@ export function helpText(): string {
 export function run(argv: readonly string[], io: Io): number {
   const [first] = argv;
 
-  if (first === undefined || first === "-h" || first === "--help" || first === "help") {
+  if (first === undefined || first === "-h" || first === "--help") {
     io.out(helpText());
     return 0;
   }
