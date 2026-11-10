@@ -14,6 +14,7 @@
     "test:watch": "vitest",
     "lint": "biome check .",
     "format": "biome format --write .",
+    "schema": "tsx scripts/emit-schema.ts && biome format --write schema",
     "cantiere": "tsx packages/cli/src/bin.ts",
     "clean": "rm -rf packages/*/dist *.tsbuildinfo packages/*/*.tsbuildinfo"
   },
