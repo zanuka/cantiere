@@ -101,7 +101,7 @@ Each project keeps its own boundary. Maglio is not a multi-agent runtime and Str
 
 ## Status
 
-Cantiere is at the very beginning: the workspace skeleton and a `cantiere` CLI whose commands are planned stubs are in place. We are building in the open, starting with the Squad stage.
+Cantiere is at the very beginning: the workspace skeleton, the core task model with its lifecycle state machine, and a `cantiere` CLI whose commands are planned stubs are in place. We are building in the open, starting with the Squad stage.
 
 ## Contributing
 
