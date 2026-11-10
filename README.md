@@ -34,6 +34,29 @@ It is a CLI that dispatches work to coding agents, gives every agent its own iso
 - **Harness-agnostic.** Claude Code, Codex, and other terminal agents plug in through small adapters. Cantiere never assumes one vendor.
 - **Explicit gates.** Merging, destructive actions, and anything irreversible stay behind human approval unless a project opts in.
 
+## Why Cantiere instead of just an agent
+
+Cantiere runs agents; it does not replace them. Claude Code, Codex and other terminal agents plug in through adapters (planned), and the agent still does the coding. The real comparison is opening agent sessions by hand versus letting Cantiere dispatch and supervise them.
+
+**When plain agent use is enough.** With one or two agents and a human watching the chat, use the agent directly. Cantiere adds nothing there.
+
+**What Cantiere adds past a handful of agents**, mapped to the walls in [The Problem](#the-problem):
+
+- **Collisions.** A worktree and branch per task; the primary checkout is never touched.
+- **Babysitting.** Sparse, structured statuses (working, blocked, needs a decision, done) that surface only what needs a human. Supervision is planned.
+- **Lost state.** Tasks and history live on disk, so a restart is a non-event. The task model and store format exist; reconciliation is planned. See [ADR 0002](docs/adr/0002-durable-state-format.md).
+- **No proof.** Every landed change records which agent did it, for which task, and how it was verified. Landing is planned.
+- **Accidents.** In the lifecycle state machine that exists today, only `landed` and `abandoned` tasks permit worktree removal, and landing or abandoning needs approval. Irreversible steps stay behind a gate.
+- **IDE gravity and lock-in.** A local CLI, any vendor's agents, your own machine and credentials.
+
+**What a day looks like** (commands are the [sketch](#sketch-of-the-cli), not yet implemented): `dispatch` a few tasks, watch `crew`, `steer` a stuck one, `land` an approved one, `cleanup` after. Later, Maglio factories can queue tasks headless, calling Strumentario tools and reading Nocciolo memory; see [docs/boundaries.md](docs/boundaries.md).
+
+### Relationship to Firstmate
+
+Firstmate is prior art and the first dogfood consumer of Cantiere's ideas, not a dependency. Cantiere shares its mechanics: isolated worktrees, durable records, sparse statuses, refusing to discard unlanded work, approval gates and vendor-neutral agents.
+
+The difference is who decides. Firstmate is an AI supervisor driven by instructions: it turns requests into briefs, makes judgment calls and reports in plain language. Cantiere is a deterministic CLI with no model in its control loop. A person, a script or a Maglio factory is the foreman, and Cantiere enforces the rules. Cantiere does not promise any Firstmate integration.
+
 ## How Cantiere Scales
 
 Cantiere grows with the goal rather than starting as a 100-agent platform:
