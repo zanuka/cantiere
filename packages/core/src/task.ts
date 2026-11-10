@@ -12,7 +12,11 @@ export const TaskKindSchema = z.enum(["agent", "command"]);
 /** `manual` today; `maglio` once work orders dispatch tasks. */
 export const TaskSourceSchema = z.enum(["manual", "maglio"]);
 
-/** The immutable definition of a task. Lifecycle state lives in the event log, not here. */
+/**
+ * The definition of a task: what to run, where, and with which harness. Lifecycle state is
+ * modelled separately (see `state.ts`); the on-disk snapshot follows ADR 0002 and is defined
+ * with the store (issue #4).
+ */
 export const TaskSchema = z
   .object({
     schemaVersion: z.literal(SCHEMA_VERSION),
@@ -41,7 +45,7 @@ export type Task = z.infer<typeof TaskSchema>;
 export type TaskKind = z.infer<typeof TaskKindSchema>;
 export type TaskSource = z.infer<typeof TaskSourceSchema>;
 
-/** JSON Schema (draft 2020-12) for `task.json`, the language-neutral contract. */
+/** JSON Schema (draft 2020-12) for {@link TaskSchema}, the language-neutral contract. */
 export function taskJsonSchema(): Record<string, unknown> {
   return z.toJSONSchema(TaskSchema, { target: "draft-2020-12", io: "input" }) as Record<
     string,
