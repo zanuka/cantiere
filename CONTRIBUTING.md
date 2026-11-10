@@ -11,6 +11,7 @@ pnpm install
 pnpm typecheck   # tsc -b across all packages
 pnpm lint        # Biome
 pnpm test        # vitest
+pnpm schema      # regenerate schema/ from the zod models (a drift test fails if stale)
 pnpm cantiere --help
 ```
 
