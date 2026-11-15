@@ -498,6 +498,38 @@ describe("locks", () => {
     await withLock(lockPath, async () => undefined, { timeoutMs: 50 });
   });
 
+  it("never steals a lock from a live process on this host, however old", async () => {
+    const store = await openStore({ lock: { staleMs: 10, timeoutMs: 200 } });
+    const task = makeTask();
+    await store.createTask(task);
+    const holder = spawn(process.execPath, ["-e", "setInterval(() => {}, 1000)"]);
+    try {
+      for (const lockPath of [
+        path.join(store.dir, "locks", `task-${task.id}.lock`),
+        path.join(store.dir, "locks", "repo.lock"),
+      ]) {
+        const content = JSON.stringify({
+          pid: holder.pid,
+          host: os.hostname(),
+          token: "live",
+          acquiredAt: new Date(Date.now() - 3_600_000).toISOString(),
+        });
+        writeFileSync(lockPath, content);
+        const err = lockPath.endsWith("repo.lock")
+          ? await store.withRepoLock(async () => undefined).catch((e: unknown) => e)
+          : await store
+              .append(task.id, { type: "test.note", actor: "agent" })
+              .catch((e: unknown) => e);
+        expect(err).toBeInstanceOf(LockTimeoutError);
+        expect(readFileSync(lockPath, "utf8")).toBe(content);
+      }
+    } finally {
+      holder.kill("SIGKILL");
+    }
+    const { events } = await store.readEvents(task.id);
+    expect(events).toHaveLength(1);
+  });
+
   it("serializes in-process concurrent appends", async () => {
     const store = await openStore();
     const task = makeTask();

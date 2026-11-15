@@ -15,7 +15,10 @@ export interface LockOwner {
 export interface LockOptions {
   /** Give up after this long and throw {@link LockTimeoutError}. Default 30s. */
   timeoutMs?: number;
-  /** A lock older than this is stale even if its pid looks alive (pid reuse, stopped holder). Default 60s. */
+  /**
+   * A lock held from another host (whose pid cannot be checked) is stale once older than this.
+   * On the same host a lock is stale only when its holder pid is dead, whatever its age. Default 60s.
+   */
   staleMs?: number;
 }
 
@@ -78,9 +81,9 @@ async function readOwner(lockPath: string): Promise<LockOwner | undefined> {
 }
 
 function isStale(owner: LockOwner, staleMs: number): boolean {
+  if (owner.host === os.hostname()) return !isProcessAlive(owner.pid);
   const age = Date.now() - Date.parse(owner.acquiredAt);
-  if (Number.isFinite(age) && age > staleMs) return true;
-  return owner.host === os.hostname() && !isProcessAlive(owner.pid);
+  return Number.isFinite(age) && age > staleMs;
 }
 
 /**
