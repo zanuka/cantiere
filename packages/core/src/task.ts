@@ -14,8 +14,8 @@ export const TaskSourceSchema = z.enum(["manual", "maglio"]);
 
 /**
  * The definition of a task: what to run, where, and with which harness. Lifecycle state is
- * modelled separately (see `state.ts`); the on-disk snapshot follows ADR 0002 and is defined
- * with the store (issue #4).
+ * modelled separately (see `state.ts`); the on-disk snapshot (`TaskSnapshotSchema` in
+ * `events.ts`) wraps this definition with state derived from the event log (ADR 0002).
  */
 export const TaskSchema = z
   .object({

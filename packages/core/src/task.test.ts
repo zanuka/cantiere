@@ -4,6 +4,8 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
   generateTaskId,
+  renderEventSchema,
+  renderSnapshotSchema,
   renderTaskSchema,
   SCHEMA_VERSION,
   TaskSchema,
@@ -70,5 +72,15 @@ describe("JSON Schema", () => {
     const onDisk = readFileSync(path.join(root, "schema/task.schema.json"), "utf8");
     // Compare parsed JSON: `pnpm schema` runs the formatter over the file.
     expect(JSON.parse(onDisk)).toEqual(JSON.parse(renderTaskSchema()));
+  });
+});
+
+describe("event and snapshot JSON Schemas", () => {
+  it.each([
+    ["schema/event.schema.json", renderEventSchema],
+    ["schema/task-snapshot.schema.json", renderSnapshotSchema],
+  ])("%s matches the code (run `pnpm schema` to regenerate)", (file, render) => {
+    const onDisk = readFileSync(path.join(root, file), "utf8");
+    expect(JSON.parse(onDisk)).toEqual(JSON.parse(render()));
   });
 });
