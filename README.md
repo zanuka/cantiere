@@ -42,7 +42,7 @@ Cantiere runs agents; it does not replace them. Claude Code, Codex and other ter
 
 **What Cantiere adds past a handful of agents**, mapped to the walls in [The Problem](#the-problem):
 
-- **Collisions.** A worktree and branch per task; the primary checkout is never touched. Worktree provisioning is planned.
+- **Collisions.** A worktree and branch per task; the primary checkout is never touched. Worktree creation and the safety predicates cleanup relies on (dirty, unmerged, landed, abandoned) exist in core; the CLI commands that use them are planned.
 - **Babysitting.** Sparse, structured statuses (working, blocked, needs a decision, done) that surface only what needs a human. Supervision is planned.
 - **Lost state.** Tasks and history will live on disk, so a restart is a non-event. The task model and the durable store (append-only event log plus rebuildable snapshots) exist; the `reconcile` command is planned. See [ADR 0002](docs/adr/0002-durable-state-format.md) and [docs/events.md](docs/events.md).
 - **No proof.** Every landed change records which agent did it, for which task, and how it was verified. Landing is planned.
