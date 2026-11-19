@@ -15,6 +15,7 @@ import {
   hasCommitsNotInBase,
   isDirty,
   runGit,
+  TaskNotFoundError,
   WORKTREE_CREATED_EVENT,
   WorktreeError,
 } from "./index.js";
@@ -219,6 +220,38 @@ describe("createWorktree", () => {
         },
       }),
     ).rejects.toThrow(/could not lock config file/);
+    expect(await git(sb.repo, "worktree", "list", "--porcelain")).not.toContain(task.id);
+    expect(await git(sb.repo, "branch", "--list", "cantiere/*")).toBe("");
+    expect((await sb.store.readEvents(task.id)).events.map((e) => e.type)).not.toContain(
+      WORKTREE_CREATED_EVENT,
+    );
+
+    rmSync(lock);
+    const result = await createWorktree({
+      store: sb.store,
+      task,
+      repoRoot: sb.repo,
+      config: {
+        worktreeRoot: sb.worktrees,
+        identity: { name: "Agent", email: "agent@example.com" },
+      },
+    });
+    expect(existsSync(result.worktreePath)).toBe(true);
+  });
+
+  it("refuses a task missing from the store before creating anything", async () => {
+    const task = makeTask();
+    await expect(
+      createWorktree({
+        store: sb.store,
+        task,
+        repoRoot: sb.repo,
+        config: { worktreeRoot: sb.worktrees },
+      }),
+    ).rejects.toBeInstanceOf(TaskNotFoundError);
+    expect(await git(sb.repo, "worktree", "list", "--porcelain")).not.toContain(task.id);
+    expect(await git(sb.repo, "branch", "--list", "cantiere/*")).toBe("");
+    expect(existsSync(sb.worktrees)).toBe(false);
   });
 
   it("never writes to the primary checkout's working tree", async () => {

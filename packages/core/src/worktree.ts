@@ -112,6 +112,7 @@ export async function createWorktree(options: CreateWorktreeOptions): Promise<Cr
         "Set worktreeRoot to a directory outside the repository.",
     );
   }
+  await store.getTask(task.id);
   await mkdir(root, { recursive: true });
 
   return store.withRepoLock(async () => {
@@ -149,23 +150,29 @@ export async function createWorktree(options: CreateWorktreeOptions): Promise<Cr
       retry,
     );
 
-    if (config.hooksPath !== undefined || config.identity) {
-      // Per-worktree config keeps hooks and identity off the shared repo config.
-      await runGitRetrying(primary, ["config", "extensions.worktreeConfig", "true"], retry);
-      const set = (key: string, value: string) =>
-        runGitRetrying(worktreePath, ["config", "--worktree", key, value], retry);
-      if (config.hooksPath !== undefined) await set("core.hooksPath", config.hooksPath);
-      if (config.identity) {
-        await set("user.name", config.identity.name);
-        await set("user.email", config.identity.email);
+    try {
+      if (config.hooksPath !== undefined || config.identity) {
+        // Per-worktree config keeps hooks and identity off the shared repo config.
+        await runGitRetrying(primary, ["config", "extensions.worktreeConfig", "true"], retry);
+        const set = (key: string, value: string) =>
+          runGitRetrying(worktreePath, ["config", "--worktree", key, value], retry);
+        if (config.hooksPath !== undefined) await set("core.hooksPath", config.hooksPath);
+        if (config.identity) {
+          await set("user.name", config.identity.name);
+          await set("user.email", config.identity.email);
+        }
       }
-    }
 
-    await store.append(task.id, {
-      type: WORKTREE_CREATED_EVENT,
-      actor: "cantiere",
-      data: { branch, worktreePath, baseRef: task.baseRef, baseSha },
-    });
+      await store.append(task.id, {
+        type: WORKTREE_CREATED_EVENT,
+        actor: "cantiere",
+        data: { branch, worktreePath, baseRef: task.baseRef, baseSha },
+      });
+    } catch (error) {
+      await runGitRaw(primary, ["worktree", "remove", "--force", worktreePath]);
+      await runGitRaw(primary, ["update-ref", "-d", `refs/heads/${branch}`, baseSha]);
+      throw error;
+    }
     return { branch, worktreePath, baseSha };
   });
 }

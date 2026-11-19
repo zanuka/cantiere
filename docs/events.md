@@ -66,7 +66,7 @@ These use the same log and are preserved like any event type the state machine d
 | Type               | `data`                                                                                           | Written by                                                                              |
 | ------------------ | ------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------- |
 | `worktree.created` | `{ "branch", "worktreePath", "baseRef", "baseSha" }`                                             | `createWorktree`: the commit `baseRef` pointed at when the branch was cut.              |
-| `task.landed`      | `{ "method": "merge" \| "squash" \| "rebase", "branchTip", "mergeCommit" }`                      | The land flow. `isLanded` reads it to recognise a squash merge, which git cannot see.   |
+| `task.landed`      | `{ "method": "merge" \| "squash" \| "rebase", "branchTip", "mergeCommit" }`                      | The land flow, with full 40-character SHAs. `isLanded` reads it to recognise a squash merge, which git cannot see; it must name the tip exactly. |
 
 `createWorktree` takes the store's repo lock, so many tasks can start at once without contending on `.git`; it also retries when git itself reports a lock error. The predicates (`isDirty`, `hasCommitsNotInBase`, `isLanded`, `isAbandonedWithReason`) are conservative: only positive proof counts as landed, a missing worktree or deleted branch is never read as safe to remove, and commits on a detached HEAD count as unmerged work.
 

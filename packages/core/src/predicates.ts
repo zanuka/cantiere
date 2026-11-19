@@ -12,12 +12,14 @@ import { TaskIdSchema } from "./task.js";
  */
 export const LAND_EVENT = "task.landed";
 
+const FullShaSchema = z.string().regex(/^[0-9a-f]{40}$/, "must be a full 40-character commit SHA");
+
 export const LandEventDataSchema = z.looseObject({
   method: z.enum(["merge", "squash", "rebase"]),
-  /** The branch tip that was landed. */
-  branchTip: z.string().min(7),
-  /** The commit on the base branch that contains the work (the squash or merge commit). */
-  mergeCommit: z.string().min(7),
+  /** The branch tip that was landed (full SHA). */
+  branchTip: FullShaSchema,
+  /** The commit on the base branch that contains the work (the squash or merge commit, full SHA). */
+  mergeCommit: FullShaSchema,
 });
 export type LandEventData = z.infer<typeof LandEventDataSchema>;
 
@@ -93,7 +95,7 @@ export async function hasCommitsNotInBase(target: GitTarget): Promise<boolean> {
   return Number(count.stdout.trim()) > 0;
 }
 
-export type LandedVia = "ancestor" | "equivalent-patches" | "land-event";
+export type LandedVia = "ancestor" | "land-event";
 
 export type LandedVerdict =
   | { landed: true; via: LandedVia }
@@ -115,12 +117,6 @@ async function isAncestor(cwd: string, ancestor: string, descendant: string): Pr
   return result.code === 0;
 }
 
-/** Every commit of `tip` not in base has an equivalent patch in base (rebase-style merge). */
-async function patchesInBase(cwd: string, base: string, tip: string): Promise<boolean> {
-  const cherry = await runGit(cwd, ["cherry", base, tip]);
-  return cherry.stdout.split("\n").every((line) => line === "" || line.startsWith("-"));
-}
-
 export interface IsLandedOptions {
   store: CantiereStore;
   taskId: string;
@@ -131,7 +127,6 @@ export interface IsLandedOptions {
  * Has this task's work landed in the base? Conservative by design: only positive proof says yes.
  *
  * - the tip is reachable from the base (merge or fast-forward, including after a rebase),
- * - every commit has a patch-equivalent commit in the base (rebase merge with new SHAs),
  * - or a recorded land event names this exact tip and its merge commit is in the base (squash).
  *
  * A deleted branch counts only through the land event; a detached HEAD must be landed too.
@@ -143,29 +138,27 @@ export async function isLanded(options: IsLandedOptions): Promise<LandedVerdict>
   if (!base) throw new Error(`baseRef "${target.baseRef}" does not resolve in ${target.repoRoot}.`);
   const landEvents = await readLandEvents(store, taskId);
 
+  const mergeInBase = async (event: LandEventData): Promise<boolean> => {
+    const merge = await revParse(target.repoRoot, event.mergeCommit);
+    return merge !== undefined && (await isAncestor(target.repoRoot, merge, base));
+  };
+  const provenByLandEvent = async (events: LandEventData[]): Promise<boolean> => {
+    for (const event of events) if (await mergeInBase(event)) return true;
+    return false;
+  };
+
   const landedTip = async (tip: string): Promise<LandedVia | undefined> => {
     if (await isAncestor(target.repoRoot, tip, base)) return "ancestor";
-    const recorded = landEvents.find(
-      (event) => event.branchTip === tip || tip.startsWith(event.branchTip),
-    );
-    if (recorded) {
-      const merge = await revParse(target.repoRoot, recorded.mergeCommit);
-      if (merge && (await isAncestor(target.repoRoot, merge, base))) return "land-event";
-    }
-    if (
-      (await revParse(target.repoRoot, tip)) &&
-      (await patchesInBase(target.repoRoot, base, tip))
-    ) {
-      return "equivalent-patches";
-    }
-    return undefined;
+    const recorded = landEvents.filter((event) => event.branchTip === tip);
+    return (await provenByLandEvent(recorded)) ? "land-event" : undefined;
   };
 
   const tip = await branchTip(target);
-  // A deleted branch is proven only by the latest land event, which still names the landed tip.
-  const subject = tip ?? [...landEvents].reverse()[0]?.branchTip;
-  if (!subject) return { landed: false, reason: "branch-missing" };
-  const via = await landedTip(subject);
+  const via: LandedVia | undefined = tip
+    ? await landedTip(tip)
+    : (await provenByLandEvent(landEvents))
+      ? "land-event"
+      : undefined;
   if (!via) return { landed: false, reason: tip ? "not-merged" : "branch-missing" };
 
   const detached = await detachedHead(target);

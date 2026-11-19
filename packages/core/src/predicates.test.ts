@@ -154,6 +154,30 @@ describe("predicates", () => {
     expect(await landed(g)).toEqual({ landed: false, reason: "not-merged" });
   });
 
+  it("land events must name full SHAs exactly, and any matching event proves the land", async () => {
+    const f = await start();
+    await commitFile(f.wt.worktreePath, "a.txt", "a");
+    await git(sb.repo, "merge", "--squash", f.wt.branch);
+    await git(sb.repo, "commit", "--quiet", "-m", "squash");
+    const tip = await git(sb.repo, "rev-parse", f.wt.branch);
+    const mergeCommit = await git(sb.repo, "rev-parse", "main");
+    const append = (data: Record<string, string>) =>
+      sb.store.append(f.task.id, {
+        type: LAND_EVENT,
+        actor: "cantiere",
+        data: { method: "squash", ...data },
+      });
+
+    await append({ branchTip: tip.slice(0, 12), mergeCommit });
+    await append({ branchTip: tip, mergeCommit: mergeCommit.slice(0, 12) });
+    expect(await landed(f)).toEqual({ landed: false, reason: "not-merged" });
+
+    await append({ branchTip: tip, mergeCommit: "0".repeat(40) });
+    expect(await landed(f)).toEqual({ landed: false, reason: "not-merged" });
+    await append({ branchTip: tip, mergeCommit });
+    expect(await landed(f)).toEqual({ landed: true, via: "land-event" });
+  });
+
   it("rebased onto the base then fast-forwarded: landed by ancestry", async () => {
     const f = await start();
     await commitFile(f.wt.worktreePath, "a.txt", "a");
@@ -162,16 +186,6 @@ describe("predicates", () => {
     await git(sb.repo, "merge", "--quiet", "--ff-only", f.wt.branch);
     expect(await hasCommitsNotInBase(f.target)).toBe(false);
     expect(await landed(f)).toEqual({ landed: true, via: "ancestor" });
-  });
-
-  it("rebase-merged with new SHAs: landed by equivalent patches", async () => {
-    const f = await start();
-    await commitFile(f.wt.worktreePath, "a.txt", "a", "one");
-    await commitFile(f.wt.worktreePath, "b.txt", "b", "two");
-    await commitFile(sb.repo, "main-only.txt", "m");
-    await git(sb.repo, "cherry-pick", `${f.wt.baseSha}..${f.wt.branch}`);
-    expect(await hasCommitsNotInBase(f.target)).toBe(true); // different SHAs
-    expect(await landed(f)).toEqual({ landed: true, via: "equivalent-patches" });
   });
 
   it("rebased but not yet merged is not landed", async () => {
