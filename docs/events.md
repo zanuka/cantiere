@@ -59,6 +59,17 @@ State is derived from events with the same transition table the supervisor uses 
 
 Agent-reported status (`working`, `blocked`, `needs-decision`, `done`) is recorded as a `task.transitioned` event with `actor: "agent"`, using the mapping in `REPORTED_STATUS_TO_STATE`.
 
+### Git events (recorded, not interpreted by the state machine)
+
+These use the same log and are preserved like any event type the state machine does not interpret:
+
+| Type               | `data`                                                                                           | Written by                                                                              |
+| ------------------ | ------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------- |
+| `worktree.created` | `{ "branch", "worktreePath", "baseRef", "baseSha" }`                                             | `createWorktree`: the commit `baseRef` pointed at when the branch was cut.              |
+| `task.landed`      | `{ "method": "merge" \| "squash" \| "rebase", "branchTip", "mergeCommit" }`                      | The land flow. `isLanded` reads it to recognise a squash merge, which git cannot see.   |
+
+`createWorktree` takes the store's repo lock, so many tasks can start at once without contending on `.git`; it also retries when git itself reports a lock error. The predicates (`isDirty`, `hasCommitsNotInBase`, `isLanded`, `isAbandonedWithReason`) are conservative: only positive proof counts as landed, a missing worktree or deleted branch is never read as safe to remove, and commits on a detached HEAD count as unmerged work.
+
 ### Forward compatibility
 
 A reader must never drop what it does not understand:
