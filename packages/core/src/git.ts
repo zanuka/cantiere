@@ -120,8 +120,8 @@ export interface DefaultBranch {
 
 /**
  * Best guess at the repository's default branch, without touching the network: the branch
- * `origin/HEAD` points at, else the branch checked out in `repoRoot` (also on an unborn branch),
- * else a local `main` or `master`, else `main`.
+ * `origin/HEAD` points at, else a local `main` or `master`, else the branch checked out in
+ * `repoRoot` (also on an unborn branch), else `main`.
  */
 export async function detectDefaultBranch(repoRoot: string): Promise<DefaultBranch> {
   const origin = await runGitRaw(repoRoot, [
@@ -133,10 +133,6 @@ export async function detectDefaultBranch(repoRoot: string): Promise<DefaultBran
   const originName = origin.stdout.trim().replace(/^origin\//, "");
   if (origin.code === 0 && originName) return { name: originName, source: "origin-head" };
 
-  const current = await runGitRaw(repoRoot, ["symbolic-ref", "--quiet", "--short", "HEAD"]);
-  const currentName = current.stdout.trim();
-  if (current.code === 0 && currentName) return { name: currentName, source: "current-branch" };
-
   for (const candidate of ["main", "master"]) {
     const found = await runGitRaw(repoRoot, [
       "show-ref",
@@ -146,5 +142,9 @@ export async function detectDefaultBranch(repoRoot: string): Promise<DefaultBran
     ]);
     if (found.code === 0) return { name: candidate, source: "local-branch" };
   }
+
+  const current = await runGitRaw(repoRoot, ["symbolic-ref", "--quiet", "--short", "HEAD"]);
+  const currentName = current.stdout.trim();
+  if (current.code === 0 && currentName) return { name: currentName, source: "current-branch" };
   return { name: "main", source: "fallback" };
 }

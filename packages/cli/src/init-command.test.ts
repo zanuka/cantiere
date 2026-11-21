@@ -209,6 +209,15 @@ describe("cantiere init", () => {
     expect(existsSync(path.join(linked, ".cantiere"))).toBe(false);
   });
 
+  it("prefers a local main over the checked-out feature branch and shows the choice", async () => {
+    await git(repo, "branch", "main");
+    await git(repo, "checkout", "--quiet", "-b", "feat/x");
+    const { code, out } = await init([]);
+    expect(code).toBe(0);
+    expect(out).toContain("Base branch: main (local-branch)");
+    expect(JSON.parse(read(".cantiere", "config.json")).baseBranch).toBe("main");
+  });
+
   it("rejects bad flags with exit 2", async () => {
     expect((await init(["--max-agents", "0"])).code).toBe(2);
     expect((await init(["--session-host", "screen"])).code).toBe(2);

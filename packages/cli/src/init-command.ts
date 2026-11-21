@@ -60,6 +60,7 @@ function renderPlan(plan: InitPlan, dryRun: boolean): string {
         : `  MISSING  ${check.name}: ${check.fix}`,
     );
   }
+  lines.push("", `Base branch: ${plan.config.baseBranch} (${plan.baseBranchSource})`);
   for (const warning of plan.warnings) lines.push("", `Warning: ${warning}`);
   lines.push("");
   if (plan.writes.length === 0) {
