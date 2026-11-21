@@ -12,11 +12,11 @@ Regenerate them with `pnpm schema`; a test fails if they drift from the code.
 
 ## Layout
 
-Under `<repo>/.cantiere/` (git-ignored runtime state):
+Under `<repo>/.cantiere/` (runtime state; `cantiere init` adds it to `.git/info/exclude`):
 
 ```
 .cantiere/
-  config.json              {"schemaVersion": 1}
+  config.json              {"schemaVersion": 1} plus settings from `cantiere init` (CantiereConfigSchema, packages/core/src/init.ts)
   locks/                   repo.lock, task-<id>.lock (and short-lived .steal guards)
   tasks/<id>/
     events.jsonl           append-only event log: the source of truth
