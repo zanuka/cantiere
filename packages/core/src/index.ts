@@ -2,6 +2,7 @@ export * from "./atomic.js";
 export * from "./events.js";
 export * from "./git.js";
 export * from "./id.js";
+export * from "./init.js";
 export * from "./lock.js";
 export * from "./predicates.js";
 export * from "./schema-files.js";
