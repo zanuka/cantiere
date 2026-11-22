@@ -95,7 +95,7 @@ Where config can be a file, `prepareWorkspace` writes it; where it can be a flag
 
 - **Breaking changes** bump it: removing or renaming a member, changing what a member must return or accept, making an optional member required, narrowing a type, adding a required capability or an environment variable an adapter must set. The runtime accepts only adapters with the exact version it implements and refuses others with a message naming both versions.
 - **Compatible changes** keep it: a new optional member, a new optional `ctx` field, a new `StateHint` kind that readers may ignore, a new check in the conformance suite that does not fail an adapter correct under the same version.
-- A breaking change ships with a migration note in the release and in this document, and the previous version is supported for at least one minor release when that is practical (the loader may accept a range before the version is bumped again).
+- A breaking change ships with a migration note in the release and in this document. Adapters built for the previous version are refused until they are updated and pass the new suite; there is no overlap window.
 - The conformance suite is versioned with the interface: a suite release declares which `apiVersion` it checks.
 - Until 1.0 the project may batch breaking changes, but never makes one without bumping `apiVersion`.
 
