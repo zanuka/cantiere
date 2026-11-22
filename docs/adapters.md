@@ -24,7 +24,7 @@ export const adapter: HarnessAdapter = {
 
 | Member | Contract |
 | --- | --- |
-| `id` | Lowercase letters, digits and dashes. It is the `harness` value users configure. |
+| `id` | Lowercase letters, digits and dashes, starting with a letter. It is the `harness` value users configure. |
 | `apiVersion` | Must equal `ADAPTER_API_VERSION`. |
 | `capabilities` | `headless` (runs a prompt to completion), `interactive` (terminal UI that takes input), `resume`, `steerInput` (`deliver` works), `mcpConfig`, `jsonOutput`. Declare only what you implement; at least one of `headless`/`interactive`. |
 | `buildCommand(task, ctx)` | Pure. Returns `{ argv, env, cwd }`: `cwd` is the worktree, `env` the **complete** environment (see below). Throw an actionable error for a `ctx.mode` you do not support. |
