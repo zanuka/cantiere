@@ -1,2 +1,3 @@
-/** Placeholder: harness adapters (Claude Code, Codex, ...) land in later issues. */
+export * from "./adapter.js";
+
 export const ADAPTERS_PACKAGE = "@cantiere/adapters";

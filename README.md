@@ -36,7 +36,7 @@ It is a CLI that dispatches work to coding agents, gives every agent its own iso
 
 ## Why Cantiere instead of just an agent
 
-Cantiere runs agents; it does not replace them. Claude Code, Codex and other terminal agents plug in through adapters (planned), and the agent still does the coding. The real comparison is opening agent sessions by hand versus letting Cantiere dispatch and supervise them.
+Cantiere runs agents; it does not replace them. Claude Code, Codex and other terminal agents plug in through [adapters](docs/adapters.md), and the agent still does the coding. The real comparison is opening agent sessions by hand versus letting Cantiere dispatch and supervise them.
 
 **When plain agent use is enough.** With one or two agents and a human watching the chat, use the agent directly. Cantiere adds nothing there.
 
