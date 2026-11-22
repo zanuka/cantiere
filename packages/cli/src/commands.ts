@@ -3,6 +3,8 @@ export interface PlannedCommand {
   readonly name: string;
   readonly usage: string;
   readonly summary: string;
+  /** True once the command is implemented; otherwise it is a stub that exits with guidance. */
+  readonly implemented?: boolean;
 }
 
 export const PLANNED_COMMANDS: readonly PlannedCommand[] = [
@@ -10,6 +12,7 @@ export const PLANNED_COMMANDS: readonly PlannedCommand[] = [
     name: "init",
     usage: "cantiere init",
     summary: "set up the yard for this repo or workspace",
+    implemented: true,
   },
   {
     name: "dispatch",

@@ -110,3 +110,41 @@ export async function runGitRetrying(
     }
   }
 }
+
+export type DefaultBranchSource = "origin-head" | "current-branch" | "local-branch" | "fallback";
+
+export interface DefaultBranch {
+  name: string;
+  source: DefaultBranchSource;
+}
+
+/**
+ * Best guess at the repository's default branch, without touching the network: the branch
+ * `origin/HEAD` points at, else a local `main` or `master`, else the branch checked out in
+ * `repoRoot` (also on an unborn branch), else `main`.
+ */
+export async function detectDefaultBranch(repoRoot: string): Promise<DefaultBranch> {
+  const origin = await runGitRaw(repoRoot, [
+    "symbolic-ref",
+    "--quiet",
+    "--short",
+    "refs/remotes/origin/HEAD",
+  ]);
+  const originName = origin.stdout.trim().replace(/^origin\//, "");
+  if (origin.code === 0 && originName) return { name: originName, source: "origin-head" };
+
+  for (const candidate of ["main", "master"]) {
+    const found = await runGitRaw(repoRoot, [
+      "show-ref",
+      "--verify",
+      "--quiet",
+      `refs/heads/${candidate}`,
+    ]);
+    if (found.code === 0) return { name: candidate, source: "local-branch" };
+  }
+
+  const current = await runGitRaw(repoRoot, ["symbolic-ref", "--quiet", "--short", "HEAD"]);
+  const currentName = current.stdout.trim();
+  if (current.code === 0 && currentName) return { name: currentName, source: "current-branch" };
+  return { name: "main", source: "fallback" };
+}
