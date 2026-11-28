@@ -1,7 +1,7 @@
 {
   "name": "@cantiere/adapters",
   "version": "0.0.0",
-  "description": "Harness adapters (Claude Code, Codex, ...). Placeholder.",
+  "description": "The harness adapter interface (Claude Code, Codex, Cursor, ...).",
   "license": "MIT",
   "type": "module",
   "exports": {

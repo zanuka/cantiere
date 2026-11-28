@@ -1,13 +1,17 @@
 {
   "name": "@cantiere/testing",
   "version": "0.0.0",
-  "description": "Fake agent and fixtures for testing Cantiere.",
+  "description": "Fake agent, adapter conformance suite and fixtures for testing Cantiere.",
   "license": "MIT",
   "type": "module",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./vitest": {
+      "types": "./dist/vitest.d.ts",
+      "import": "./dist/vitest.js"
     }
   },
   "main": "./dist/index.js",
@@ -23,6 +27,21 @@
     "node": ">=22"
   },
   "dependencies": {
-    "@cantiere/core": "workspace:*"
+    "@cantiere/core": "workspace:*",
+    "@cantiere/adapters": "workspace:*"
+  },
+  "bin": {
+    "cantiere-adapter-conformance": "./dist/conformance-cli.js"
+  },
+  "peerDependencies": {
+    "vitest": ">=3"
+  },
+  "peerDependenciesMeta": {
+    "vitest": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "vitest": "^3.0.9"
   }
 }
